@@ -1,9 +1,42 @@
 @startuml
-ユーザエージェント -> クライアント: セキュアエンドポイントへリクエスト
+autonumber
+ユーザエージェント -> クライアント:  セキュアエンドポイントへアクセス\n/secure/endpoint
 activate クライアント
-クライアント -> クライアント: ログインチェック(NG)
-クライアント --> ユーザエージェント: 自分のauthorizeエンドポイントへリダイレクト指示
+クライアント -> クライアント: ""ExceptionTranslationFilter""\nログインチェック(NG)
+クライアント --> ユーザエージェント: AuthenticationEntryPointである\n""/oauth2/authorization/myspring""\nへリダイレクト指示
 deactivate クライアント
 
-ユーザエージェント
+ユーザエージェント -> クライアント: /oauth2/authorization/myspring
+activate クライアント
+クライアント -> クライアント: ""OAuth2AuthorizationRequestRedirectFilter""
+クライアント --> ユーザエージェント: 認可サーバのauthorizationエンドポイントへ\nリダイレクト指示
+deactivate クライアント
+
+ユーザエージェント -> 認可サーバ: /authorize
+activate 認可サーバ
+認可サーバ -> 認可サーバ: 認可処理(ユーザエージェントと\nインタラクトする場合あり)
+認可サーバ --> ユーザエージェント: redirect-uriへリダイレクト指示 with 認可コード(code)
+deactivate 認可サーバ
+
+ユーザエージェント -> クライアント: redirect-uri\n/login/oauth2/code/myspring\nwith 認可コード
+activate クライアント
+クライアント -> クライアント: ""OAuth2LoginAuthenticationFilter""\nリクエスト検証
+クライアント -> 認可サーバ: /code with 認可コード
+activate 認可サーバ
+認可サーバ --> クライアント: アクセストークン
+deactivate 認可サーバ
+クライアント -> 認可サーバ: /userinfo with アクセストークン
+activate 認可サーバ
+認可サーバ --> クライアント: userinfo
+deactivate 認可サーバ
+クライアント -> クライアント: ログイン
+クライアント --> ユーザエージェント: 元々のリクエスト\n/secure/endpoint\nへリダイレクト指示
+deactivate クライアント
+
+ユーザエージェント -> クライアント: /secure/endpoint
+activate クライアント
+クライアント -> クライアント: Controller の処理
+クライアント --> ユーザエージェント: 応答
+deactivate クライアント
+
 @enduml
