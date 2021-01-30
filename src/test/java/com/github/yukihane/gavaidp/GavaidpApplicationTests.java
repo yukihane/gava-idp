@@ -1,10 +1,10 @@
-package com.github.yukihane.gabaidp;
+package com.github.yukihane.gavaidp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GabaidpApplicationTests {
+class GavaidpApplicationTests {
 
 	@Test
 	void contextLoads() {

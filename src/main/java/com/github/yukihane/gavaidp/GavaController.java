@@ -1,4 +1,4 @@
-package com.github.yukihane.gabaidp;
+package com.github.yukihane.gavaidp;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/gabaidp")
-public class GabaIdpController {
+@RequestMapping("/gavaidp")
+public class GavaController {
 
     private static final ConcurrentReferenceHashMap<String, String> NONCES = new ConcurrentReferenceHashMap<>(200,
         ReferenceType.WEAK);

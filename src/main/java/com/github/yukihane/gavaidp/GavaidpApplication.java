@@ -1,13 +1,13 @@
-package com.github.yukihane.gabaidp;
+package com.github.yukihane.gavaidp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GabaidpApplication {
+public class GavaidpApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(GabaidpApplication.class, args);
+        SpringApplication.run(GavaidpApplication.class, args);
     }
 
 }
