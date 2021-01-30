@@ -8,11 +8,9 @@
     <version>2.3.2.RELEASE</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
-  <groupId>com.example</groupId>
-  <artifactId>oidc-add-scope</artifactId>
+  <groupId>com.github.yukihane</groupId>
+  <artifactId>gava-idp-test-client</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>oidc-add-scope</name>
-  <description>Demo project for Spring Boot</description>
 
   <properties>
     <java.version>11</java.version>
