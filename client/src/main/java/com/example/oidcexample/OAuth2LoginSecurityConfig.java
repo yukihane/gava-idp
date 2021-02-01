@@ -18,10 +18,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.OidcIdToke
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.web.client.RestTemplate;
@@ -45,7 +42,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
         final Logger logger = LoggerFactory
-            .getLogger(DefaultAuthorizationCodeTokenResponseClient.class);
+            .getLogger(OAuth2LoginSecurityConfig.class.getName() + ".token");
 
         // DefaultAuthorizationCodeTokenResponseClient デフォルトコンストラクタより
         final RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -84,7 +81,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
         // DefaultOAuth2UserService コンストラクタのコピー
         restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
         // loggingインターセプタ設定
-        final Logger logger = LoggerFactory.getLogger(DefaultOAuth2UserService.class);
+        final Logger logger = LoggerFactory.getLogger(OAuth2LoginSecurityConfig.class.getName() + ".userinfo");
         restTemplate.setInterceptors(List.of(new RestTemplateLoggingInterceptor(logger)));
 
         userService.setRestOperations(restTemplate);

@@ -1,6 +1,6 @@
 logging:
   level:
-    org.springframework.security.oauth2.client.endpoint: DEBUG
+    com.example.oidcexample.OAuth2LoginSecurityConfig: DEBUG
 
 spring:
   security:
