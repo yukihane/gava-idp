@@ -17,7 +17,11 @@ import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorH
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.web.client.RestTemplate;
@@ -65,13 +69,27 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
         return idTokenDecoderFactory;
     }
 
-    // https://yukihane.github.io/blog/202009/12/oidc-userinfo-not-fetched-for-custom-claims/
-    // https://github.com/spring-projects/spring-security/issues/6886
-    // 必ず userinfo エンドポイントにアクセスさせるための設定
     @Bean
     OidcUserService oidcUserService() {
         final OidcUserService ret = new OidcUserService();
+
+        // https://yukihane.github.io/blog/202009/12/oidc-userinfo-not-fetched-for-custom-claims/
+        // https://github.com/spring-projects/spring-security/issues/6886
+        // 必ず userinfo エンドポイントにアクセスさせるための設定
         ret.setAccessibleScopes(Set.of());
+
+        final DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+
+        final RestTemplate restTemplate = new RestTemplate();
+        // DefaultOAuth2UserService コンストラクタのコピー
+        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+        // loggingインターセプタ設定
+        final Logger logger = LoggerFactory.getLogger(DefaultOAuth2UserService.class);
+        restTemplate.setInterceptors(List.of(new RestTemplateLoggingInterceptor(logger)));
+
+        userService.setRestOperations(restTemplate);
+
+        ret.setOauth2UserService(userService);
         return ret;
     }
 }
