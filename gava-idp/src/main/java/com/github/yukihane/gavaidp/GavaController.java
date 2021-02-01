@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -101,6 +102,23 @@ public class GavaController {
         ret.put("sub", "dummy-subject-identifier");
         ret.put("preferred_username", "dummy_user_name");
         return ret;
+    }
+
+    /**
+     * エラーを返す userinfo エンドポイント。
+     *
+     * @see <a href=
+     * "https://openid-foundation-japan.github.io/openid-connect-core-1_0.ja.html#UserInfoError">
+     * 5.3.3. UserInfo Error Response</a>
+     * @see <a href=
+     * "http://openid-foundation-japan.github.io/rfc6750.ja.html#authn-header">
+     * 3. WWW-Authenticate レスポンスヘッダフィールド</a>
+     */
+    @RequestMapping(value = "/userinfo-error", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> userinfoError() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header("WWW-Authenticate",
+            "Bearer realm=\"example\", error=\"invalid_token\", error_description=\"The access token expired\"")
+            .build();
     }
 
     @RequestMapping("/certs")
