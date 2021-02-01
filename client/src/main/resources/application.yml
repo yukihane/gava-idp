@@ -1,6 +1,6 @@
 logging:
   level:
-    ROOT: DEBUG
+    org.springframework.security.oauth2.client.endpoint: DEBUG
 
 spring:
   security:
