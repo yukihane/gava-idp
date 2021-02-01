@@ -3,8 +3,14 @@ package com.example.oidcexample;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -14,53 +20,48 @@ import org.springframework.http.client.ClientHttpResponse;
 @RequiredArgsConstructor
 public class RestTemplateLoggingInterceptor implements ClientHttpRequestInterceptor {
 
+    @NonNull
     private final Logger logger;
 
     @Override
-    public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, final ClientHttpRequestExecution execution)
-        throws IOException {
-        traceRequest(request, body);
-        final ClientHttpResponse response = execution.execute(request, body);
-        return traceResponse(response);
-    }
+    public ClientHttpResponse intercept(final HttpRequest request, final byte[] body,
+        final ClientHttpRequestExecution execution) throws IOException {
 
-    private void traceRequest(final HttpRequest request, final byte[] body) throws IOException {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        logger.debug(
-            "==========================request begin==============================================");
-        logger.debug("URI                 : {}", request.getURI());
-        logger.debug("Method            : {}", request.getMethod());
-        logger.debug("Headers         : {}", request.getHeaders());
-        logger.debug("Request body: {}", new String(body, "UTF-8"));
-        logger.debug(
-            "==========================request end================================================");
-    }
+        if (logger.isDebugEnabled()) {
 
-    private ClientHttpResponse traceResponse(final ClientHttpResponse response) throws IOException {
-        if (!logger.isDebugEnabled()) {
-            return response;
+            final URI uri = request.getURI();
+            final HttpMethod method = request.getMethod();
+            final HttpHeaders headers = request.getHeaders();
+            final String bodyStr = new String(body, StandardCharsets.UTF_8);
+
+            logger.debug("Begin requesting. uri: {}, method: {}, headers: {}, body: {}", uri, method, headers,
+                bodyStr);
         }
-        final ClientHttpResponse responseWrapper = new BufferingClientHttpResponseWrapper(response);
-        final StringBuilder inputStringBuilder = new StringBuilder();
-        final BufferedReader bufferedReader = new BufferedReader(
-            new InputStreamReader(responseWrapper.getBody(), "UTF-8"));
-        String line = bufferedReader.readLine();
-        while (line != null) {
-            inputStringBuilder.append(line);
-            inputStringBuilder.append('\n');
-            line = bufferedReader.readLine();
+
+        final ClientHttpResponse response;
+        try {
+            response = execution.execute(request, body);
+        } catch (final Exception e) {
+            logger.error("Error requesting.", e);
+            throw e;
         }
-        logger.debug(
-            "==========================response begin=============================================");
-        logger.debug("Status code    : {}", responseWrapper.getStatusCode());
-        logger.debug("Status text    : {}", responseWrapper.getStatusText());
-        logger.debug("Headers            : {}", responseWrapper.getHeaders());
-        logger.debug("Response body: {}", inputStringBuilder.toString());
-        logger.debug(
-            "==========================response end===============================================");
-        return responseWrapper;
+
+        try (
+            final ClientHttpResponse respWrapper = new BufferingClientHttpResponseWrapper(response);
+            final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(respWrapper.getBody(), "UTF-8"))) {
+
+            if (logger.isDebugEnabled()) {
+                final int statusCode = respWrapper.getRawStatusCode();
+                final HttpHeaders headers = respWrapper.getHeaders();
+                final String bodyStr = reader.lines().collect(Collectors.joining());
+
+                logger.debug("End requesting. statusCode: {}, headers: {}, body: {}", statusCode, headers, bodyStr);
+            }
+
+            return respWrapper;
+        }
+
     }
 
 }

@@ -41,7 +41,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
         final Logger logger = LoggerFactory
-            .getLogger(DefaultAuthorizationCodeTokenResponseClient.class.getName() + ".RestTemplate");
+            .getLogger(DefaultAuthorizationCodeTokenResponseClient.class);
 
         // DefaultAuthorizationCodeTokenResponseClient デフォルトコンストラクタより
         final RestTemplate restTemplate = new RestTemplate(Arrays.asList(
