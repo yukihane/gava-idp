@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/gavaidp")
 public class GavaController {
 
+    public static final String CLIENT_ID = "myclient";
+    public static final String CLIENT_SECRET = "e3b8886b-5b6e-49a7-91c2-c28caadf0a2b";
+
     private static final ConcurrentReferenceHashMap<String, String> NONCES = new ConcurrentReferenceHashMap<>(200,
         ReferenceType.WEAK);
     private static final Date EXP;
@@ -53,14 +56,14 @@ public class GavaController {
     @RequestMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, Object> token(@RequestParam("code") final String code) {
-        final Algorithm alg = Algorithm.HMAC256("e3b8886b-5b6e-49a7-91c2-c28caadf0a2b");
+        final Algorithm alg = Algorithm.HMAC256(CLIENT_SECRET);
 
         final String nonce = NONCES.remove(code);
 
         final String idToken = JWT.create()
             .withIssuer("https://gaba.example.com")
             .withSubject("dummy-subject-identifier")
-            .withAudience("myclient")
+            .withAudience(CLIENT_ID)
             .withExpiresAt(EXP)
             .withIssuedAt(new Date())
             .withClaim("nonce", nonce)
