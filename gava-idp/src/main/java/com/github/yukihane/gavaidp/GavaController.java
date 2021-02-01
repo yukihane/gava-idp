@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ConcurrentReferenceHashMap.ReferenceType;
@@ -78,6 +79,18 @@ public class GavaController {
         ret.put("id_token", idToken);
 
         return ret;
+    }
+
+    /**
+     * token エンドポイントでエラーを返したい場合にはこちらに接続する。
+     *
+     * <a href=
+     * "https://openid-foundation-japan.github.io/openid-connect-core-1_0.ja.html#TokenErrorResponse">
+     * 3.1.3.4. Token Error Response</a>
+     */
+    @RequestMapping(value = "/token-error", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> tokenError() {
+        return ResponseEntity.badRequest().body(Map.of("error", "invalid_request"));
     }
 
     @RequestMapping(value = "/userinfo", produces = MediaType.APPLICATION_JSON_VALUE)
